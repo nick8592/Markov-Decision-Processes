@@ -46,8 +46,9 @@ def modified_policy_improvement(
     left_value=  0
     back_value = 0
     new_policy = ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA']
-
-    for row in range(state_num): # for each states, determine "right value" or "left value" is better
+    
+    # for each states, determine "right value" or "left value" is better
+    for row in range(state_num): 
         for column in range(state_num):
         # right value
             right_value += transitional_probability[RIGHT][row][column] * value[column]
