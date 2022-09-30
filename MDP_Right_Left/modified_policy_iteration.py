@@ -5,13 +5,15 @@ def modified_policy_evaluation (
     reward: list, transitional_probability: list, discount_factor: float, value: list, \
         k: int, terminal: list, state_num: int, action_num: int):
 
-    delta_list = []
+    delta = 0
+    episode_num = 0
+    total_value = []
     tp = transitional_probability
 
     # iterate with k times
     for i in range(k):
-        delta = 0
-        NewValue = [-1e12, -1e12, -1e12, -1e12, -1e12, -1e12, -1e12, -1e12]
+        
+        NewValue = [-1e12 for i in range(state_num)]
         print(str(i) + ': ', \
             f'{value[0]:.2f}', f'{value[1]:.2f}', f'{value[2]:.2f}', f'{value[3]:.2f}',\
             f'{value[4]:.2f}', f'{value[5]:.2f}', f'{value[6]:.2f}', f'{value[7]:.2f}',\
@@ -23,17 +25,22 @@ def modified_policy_evaluation (
             value_temp = 0
             for action in range(action_num):
                 for column in range(state_num):
-                    value_temp += tp[action][row][column] * value[column] \
-                        * discount_factor + reward[row][action]
+                    value_temp += tp[action][row][column] * value[column]
+                value_temp *= discount_factor 
+                value_temp += reward[row][action]
             NewValue[row] = round(value_temp, 2)
+        delta = 0
+        sub_value = 0
         for i in range(state_num):
             delta = max(delta, abs(value[i] - NewValue[i]))
-        delta_list.append(round(delta, 2))
+            sub_value += round(NewValue[i], 3)
+        total_value.append(round(sub_value, 3))
 
+        episode_num += 1
         if i <= k:
             value = NewValue
         else:
-            return NewValue
+            return NewValue, total_value, episode_num
 
 def modified_policy_improvement(
     value: list, transitional_probability: list, discount_factor: float, \
@@ -42,13 +49,12 @@ def modified_policy_improvement(
     CHANGE = False
     RIGHT = 0
     LEFT = 1
-    tp = transitional_probability
     right_value = 0
     left_value=  0
-    new_policy = ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA']
-       
-    # for each states, determine "right value" or "left value" is better
-    for row in range(state_num): 
+    new_policy = ['NA' for i in range(state_num)]
+    tp = transitional_probability
+
+    for row in range(state_num): # for each states, determine "right value" or "left value" is better
         for column in range(state_num):
         # right value
             right_value += tp[RIGHT][row][column] * value[column]
@@ -74,19 +80,22 @@ def modified_policy_iteration(
         initial_policy: list, initial_terminal: list, k: int, state_num: int, action_num: int):
 
     STABLE = False
-    delta_list_all = []
+    total_value = []
+    total_episode = 0
 
     while not STABLE:
-        converge_value= modified_policy_evaluation(reward, transitional_probability, \
+        converge_value, sub_value, episode = modified_policy_evaluation(reward, transitional_probability, \
             discount_factor, initial_value, k, initial_terminal, state_num, action_num)
-        new_policy, CHANGE = modified_policy_improvement(converge_value, transitional_probability, \
-            discount_factor, initial_policy, initial_terminal, state_num)
+        new_policy, CHANGE = modified_policy_improvement(converge_value, transitional_probability, discount_factor, \
+            initial_policy, initial_terminal, state_num)
 
+        total_episode += episode
+        total_value.extend(sub_value)
         if CHANGE == False:
             STABLE = True
         else:
             initial_value = converge_value
             initial_policy = new_policy
 
-    return new_policy
+    return new_policy, total_value, total_episode
 
