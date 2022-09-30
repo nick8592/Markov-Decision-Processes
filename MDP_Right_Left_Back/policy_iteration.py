@@ -7,11 +7,13 @@ def policy_evaluation (
     
     CONVERGE = False
     delta = 0
-    tp = transitional_probability
     iteration = 0
+    episode_num = 0
+    total_value = []
+    tp = transitional_probability
     
     while not CONVERGE:
-        NewValue = [-1e12, -1e12, -1e12, -1e12, -1e12, -1e12, -1e12, -1e12]
+        NewValue = [-1e12 for i in range(state_num)]
         print(str(iteration) + ': ', \
             f'{value[0]:.2f}', f'{value[1]:.2f}', f'{value[2]:.2f}', f'{value[3]:.2f}',\
             f'{value[4]:.2f}', f'{value[5]:.2f}', f'{value[6]:.2f}', f'{value[7]:.2f}',\
@@ -28,12 +30,16 @@ def policy_evaluation (
                 value_temp += reward[row][action]     
             NewValue[row] = round(value_temp, 2)
         delta = 0
+        sub_value = 0
         for i in range(state_num):
             delta = max(delta, abs(value[i] - NewValue[i]))
-
+            sub_value += round(NewValue[i], 3)
+        total_value.append(round(sub_value, 3))
+        
+        episode_num += 1
         if delta < converge_threshold:
             CONVERGE = True
-            return NewValue
+            return NewValue, total_value, episode_num
         else:
             value = NewValue
             iteration += 1  
@@ -50,7 +56,7 @@ def policy_improvement(
     right_value = 0
     left_value=  0
     back_value = 0
-    new_policy = ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA']
+    new_policy = ['NA' for i in range(state_num)]
 
     # for each states, determine "right value" or "left value" or "back value" is better
     for row in range(state_num): 
@@ -85,17 +91,21 @@ def policy_iteration(
     converge_threhold: float, initial_policy: list, initial_terminal: list, state_num: int, action_num: int):
 
     STABLE = False
+    total_value = []
+    total_episode = 0
 
     while not STABLE:
-        converge_value= policy_evaluation(reward, initial_value, transitional_probability, \
+        converge_value, sub_value, episode = policy_evaluation(reward, initial_value, transitional_probability, \
             discount_factor, converge_threhold, initial_terminal, state_num, action_num)
         new_policy, CHANGE = policy_improvement(converge_value, transitional_probability, discount_factor, \
             initial_policy, initial_terminal, state_num)
 
+        total_episode += episode
+        total_value.extend(sub_value)
         if CHANGE == False:
             STABLE = True
         else:
             initial_value = converge_value
             initial_policy = new_policy
 
-    return new_policy
+    return new_policy, total_value, total_episode
