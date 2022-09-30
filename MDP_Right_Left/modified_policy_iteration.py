@@ -46,8 +46,9 @@ def modified_policy_improvement(
     right_value = 0
     left_value=  0
     new_policy = ['NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA', 'NA']
-
-    for row in range(state_num): # for each states, determine "right value" or "left value" is better
+       
+    # for each states, determine "right value" or "left value" is better
+    for row in range(state_num): 
         for column in range(state_num):
         # right value
             right_value += tp[RIGHT][row][column] * value[column]
@@ -78,8 +79,8 @@ def modified_policy_iteration(
     while not STABLE:
         converge_value= modified_policy_evaluation(reward, transitional_probability, \
             discount_factor, initial_value, k, initial_terminal, state_num, action_num)
-        new_policy, CHANGE = modified_policy_improvement(converge_value, transitional_probability, discount_factor, \
-            initial_policy, initial_terminal, state_num)
+        new_policy, CHANGE = modified_policy_improvement(converge_value, transitional_probability, \
+            discount_factor, initial_policy, initial_terminal, state_num)
 
         if CHANGE == False:
             STABLE = True
