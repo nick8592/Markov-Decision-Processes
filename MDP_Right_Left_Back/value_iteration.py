@@ -1,7 +1,8 @@
 '''
 Value Iteration
 '''
-def value_evaluation (reward: list, value: list, transitional_probability: list, discount_factor: float, \
+def value_evaluation (
+    reward: list, value: list, transitional_probability: list, discount_factor: float, \
     converge_threshold: float, state_num: int, action_num: int):
     delta = 0
     delta_list = []
@@ -32,8 +33,9 @@ def value_evaluation (reward: list, value: list, transitional_probability: list,
             return value
 
 # Determine the policy (One time iteration)
-def policy_determination(reward: list, value: list, transition_probability: list, \
-    discount_factor: float, policy: list, terminal: list, state_num: int, action_num: int, action_list: list):
+def policy_determination(
+    reward: list, value: list, transition_probability: list, discount_factor: float, \
+        policy: list, terminal: list, state_num: int, action_num: int, action_list: list):
 
     NewValue = [-1e12, -1e12, -1e12, -1e12, -1e12, -1e12, -1e12, -1e12]
     for i in range(state_num):
